@@ -1,4 +1,4 @@
-# Copyright (c) 2012 Purdue University
+# Copyright (c) 2020 Purdue University
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with o without
@@ -24,49 +24,39 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
-# Authors: Malek Musleh
+# Authors: Malek Musleh, modified by Tim Rogers to work with gem5 20.x
 ### The following file was referenced from the following site:
 ### http://www.m5sim.org/SPEC_CPU2006_benchmarks
 ###
 ### and subsequent changes were made
 
-import os
-import optparse
-import sys
+from __future__ import print_function
+from __future__ import absolute_import
 
+
+# import the m5 (gem5) library created when gem5 is built
 import m5
-from m5.defines import buildEnv
+# import all of the SimObjects
 from m5.objects import *
-from m5.util import addToPath, fatal
 
-addToPath('../common')
-addToPath('../ruby')
-addToPath('../topologies')
+m5.util.addToPath('../')
 
-import Options
-import Ruby
-import Simulation
-import CacheConfig
-from Caches import *
-from cpu2000 import *
+from common import Options
+import optparse
 import spec2k6
 
-from Ruby import *
 
 # Get paths we might need.  It's expected this file is in m5/configs/example.
 config_path = os.path.dirname(os.path.abspath(__file__))
-print config_path
+print(config_path)
 config_root = os.path.dirname(config_path)
-print config_root
+print(config_root)
 m5_root = os.path.dirname(config_root)
-print m5_root
-
-execfile(os.path.join(config_root, "ruby", "Ruby.py"))
+print(m5_root)
 
 parser = optparse.OptionParser()
 Options.addCommonOptions(parser)
 Options.addSEOptions(parser)
-Ruby.define_options(parser)
 
 # Benchmark options
 
@@ -77,7 +67,7 @@ parser.add_option("-b", "--benchmark", default="",
 (options, args) = parser.parse_args()
 
 if args:
-    print "Error: script doesn't take any positional arguments"
+    print("Error: script doesn't take any positional arguments")
     sys.exit(1)
 
 if options.benchmark == 'perlbench':
@@ -143,48 +133,63 @@ elif options.benchmark == 'specrand_i':
 elif options.benchmark == 'specrand_f':
    process = spec2k6.specrand_f
 
-multiprocesses = []
-numThreads = 1
+# import the m5 (gem5) library created when gem5 is built
+import m5
+# import all of the SimObjects
+from m5.objects import *
 
-(CPUClass, test_mem_mode, FutureClass) = Simulation.setCPUClass(options)
-CPUClass.clock = '1.0GHz'
-CPUClass.numThreads = numThreads
+# create the system we are going to simulate
+system = System()
 
-multiprocesses.append(process)
+# Set the clock fequency of the system (and all of its children)
+system.clk_domain = SrcClockDomain()
+system.clk_domain.clock = '1GHz'
+system.clk_domain.voltage_domain = VoltageDomain()
 
-np = options.num_cpus
-system = System(cpu = [CPUClass(cpu_id=i) for i in xrange(np)],
-                physmem = SimpleMemory(range=AddrRange("512MB")),
-                membus = CoherentBus(), mem_mode = test_mem_mode)
+# Set up the system
+system.mem_mode = 'timing'               # Use timing accesses
+system.mem_ranges = [AddrRange('512MB')] # Create an address range
 
-for i in xrange(np):
-    if options.smt:
-        system.cpu[i].workload = multiprocesses
-    elif len(multiprocesses) == 1:
-        system.cpu[i].workload = multiprocesses[0]
-    else:
-        system.cpu[i].workload = multiprocesses[i]
+# Create a simple CPU
+system.cpu = TimingSimpleCPU()
 
-options.use_map = True
-Ruby.create_system(options, system)
-assert(options.num_cpus == len(system.ruby._cpu_ruby_ports))
+# Create a memory bus, a system crossbar, in this case
+system.membus = SystemXBar()
 
-for i in xrange(np):
-    ruby_port = system.ruby._cpu_ruby_ports[i]
+# Hook the CPU ports up to the membus
+system.cpu.icache_port = system.membus.slave
+system.cpu.dcache_port = system.membus.slave
 
-    # Create the interrupt controller and connect its ports to Ruby
-    system.cpu[i].createInterruptController()
-    # Connect the cpu's cache ports to Ruby
-    system.cpu[i].icache_port = ruby_port.slave
-    system.cpu[i].dcache_port = ruby_port.slave
-    if buildEnv['TARGET_ISA'] == 'x86':
-        system.cpu[i].interrupts.pio = ruby_port.master
-        system.cpu[i].interrupts.int_master = ruby_port.slave
-        system.cpu[i].interrupts.int_slave = ruby_port.master
+# create the interrupt controller for the CPU and connect to the membus
+system.cpu.createInterruptController()
 
-        system.cpu[i].itb.walker.port = ruby_port.slave
-        system.cpu[i].dtb.walker.port = ruby_port.slave
+print(m5.defines.buildEnv)
+print(m5.defines.buildEnv['TARGET_ISA'])
 
+# For x86 only, make sure the interrupts are connected to the memory
+# Note: these are directly connected to the memory bus and are not cached
+if m5.defines.buildEnv['TARGET_ISA'] == "x86":
+    system.cpu.interrupts[0].pio = system.membus.master
+    system.cpu.interrupts[0].int_master = system.membus.slave
+    system.cpu.interrupts[0].int_slave = system.membus.master
 
+# Set the cpu to use the process as its workload and create thread contexts
+system.cpu.workload = process
+system.cpu.createThreads()
+
+# Create a DDR3 memory controller and connect it to the membus
+system.mem_ctrl = DDR3_1600_8x8()
+system.mem_ctrl.range = system.mem_ranges[0]
+system.mem_ctrl.port = system.membus.master
+
+# Connect the system up to the membus
+system.system_port = system.membus.slave
+
+# set up the root SimObject and start the simulation
 root = Root(full_system = False, system = system)
-Simulation.run(options, root, system, FutureClass)
+# instantiate all of the objects we've created above
+m5.instantiate()
+
+print("Beginning simulation!")
+exit_event = m5.simulate()
+print('Exiting @ tick %i because %s' % (m5.curTick(), exit_event.getCause()))
