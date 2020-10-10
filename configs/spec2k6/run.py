@@ -42,6 +42,7 @@ from m5.objects import *
 m5.util.addToPath('../')
 
 from common import Options
+from caches import *
 import optparse
 import spec2k6
 
@@ -58,14 +59,12 @@ parser = optparse.OptionParser()
 Options.addCommonOptions(parser)
 Options.addSEOptions(parser)
 
+############################################################################
 # Benchmark options
-
+############################################################################
 parser.add_option("-b", "--benchmark", default="",
                  help="The benchmark to be loaded.")
-
-
 (options, args) = parser.parse_args()
-
 if args:
     print("Error: script doesn't take any positional arguments")
     sys.exit(1)
@@ -132,12 +131,11 @@ elif options.benchmark == 'specrand_i':
    process = spec2k6.specrand_i
 elif options.benchmark == 'specrand_f':
    process = spec2k6.specrand_f
+############################################################################
 
-# import the m5 (gem5) library created when gem5 is built
-import m5
-# import all of the SimObjects
-from m5.objects import *
-
+############################################################################
+# System setup
+############################################################################
 # create the system we are going to simulate
 system = System()
 
@@ -153,18 +151,33 @@ system.mem_ranges = [AddrRange('512MB')] # Create an address range
 # Create a simple CPU
 system.cpu = TimingSimpleCPU()
 
-# Create a memory bus, a system crossbar, in this case
+# Create an L1 instruction and data cache
+system.cpu.icache = L1ICache(options)
+system.cpu.dcache = L1DCache(options)
+
+# Connect the instruction and data caches to the CPU
+system.cpu.icache.connectCPU(system.cpu)
+system.cpu.dcache.connectCPU(system.cpu)
+
+# Create a memory bus, a coherent crossbar, in this case
+system.l2bus = L2XBar()
+
+# Hook the CPU ports up to the l2bus
+system.cpu.icache.connectBus(system.l2bus)
+system.cpu.dcache.connectBus(system.l2bus)
+
+# Create an L2 cache and connect it to the l2bus
+system.l2cache = L2Cache(options)
+system.l2cache.connectCPUSideBus(system.l2bus)
+
+# Create a memory bus
 system.membus = SystemXBar()
 
-# Hook the CPU ports up to the membus
-system.cpu.icache_port = system.membus.slave
-system.cpu.dcache_port = system.membus.slave
+# Connect the L2 cache to the membus
+system.l2cache.connectMemSideBus(system.membus)
 
-# create the interrupt controller for the CPU and connect to the membus
+# create the interrupt controller for the CPU
 system.cpu.createInterruptController()
-
-print(m5.defines.buildEnv)
-print(m5.defines.buildEnv['TARGET_ISA'])
 
 # For x86 only, make sure the interrupts are connected to the memory
 # Note: these are directly connected to the memory bus and are not cached
@@ -173,17 +186,17 @@ if m5.defines.buildEnv['TARGET_ISA'] == "x86":
     system.cpu.interrupts[0].int_master = system.membus.slave
     system.cpu.interrupts[0].int_slave = system.membus.master
 
-# Set the cpu to use the process as its workload and create thread contexts
-system.cpu.workload = process
-system.cpu.createThreads()
+# Connect the system up to the membus
+system.system_port = system.membus.slave
 
-# Create a DDR3 memory controller and connect it to the membus
+# Create a DDR3 memory controller
 system.mem_ctrl = DDR3_1600_8x8()
 system.mem_ctrl.range = system.mem_ranges[0]
 system.mem_ctrl.port = system.membus.master
 
-# Connect the system up to the membus
-system.system_port = system.membus.slave
+# Set the cpu to use the process as its workload and create thread contexts
+system.cpu.workload = process
+system.cpu.createThreads()
 
 # set up the root SimObject and start the simulation
 root = Root(full_system = False, system = system)
