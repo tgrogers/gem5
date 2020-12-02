@@ -81,7 +81,7 @@ gcc.cmd = [gcc.executable] + [data]+['-o',output] + ['-quiet'] \
 
 #410.bwaves
 bwaves = Process()
-bwaves.executable =  bench_dir+'/exe/bwaves_base.amd64-armcross'
+bwaves.executable =  bench_dir+'410.bwaves/exe/bwaves_base.amd64-armcross'
 #bwaves.data = bwaves.data
 bwaves.cmd = [bwaves.executable]
 
@@ -205,7 +205,7 @@ calculix.output = 'beampic.log'
 
 #456.hmmer
 hmmer=Process()
-hmmr_dir = '456.hmmr/'
+hmmr_dir = '456.hmmer/'
 hmmer.executable = bench_dir+hmmr_dir+\
     '/exe/hmmer_base.amd64-armcross'
 data=bench_dir+hmmr_dir+'/data/ref/input/nph3.hmm'
@@ -242,7 +242,7 @@ libquantum.output = 'ref.out'
 h264ref=Process()
 h264_dir = '464.h264ref/'
 h264ref.executable = bench_dir+h264_dir+\
-    '/exe/h264_base.amd64-armcross'
+    '/exe/h264ref_base.amd64-armcross'
 data=bench_dir+h264_dir+'/data/ref/input/foreman_ref_encoder_baseline.cfg'
 h264ref.cmd = [h264ref.executable]+['-d',data]
 h264ref.output = 'foreman_ref_encoder_baseline.out'
@@ -283,7 +283,7 @@ wrf.output = 'rsl.out.0000'
 
 #482.sphinx
 sphinx3=Process()
-sphinx3_dir = '482.sphinx/'
+sphinx3_dir = '482.sphinx3/'
 sphinx3.executable =  bench_dir+sphinx3_dir+\
     '/exe/sphinx_base.amd64-armcross'
 sphinx3.cmd = [sphinx3.executable]+['ctlfile', '.', 'args.an4']
