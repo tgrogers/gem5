@@ -88,8 +88,9 @@ gcc.cmd = [gcc.executable] + [data]+['-o',output] + ['-quiet'] \
 
 #410.bwaves
 bwaves = Process()
-bwaves.executable =  bench_dir+'/exe/bwaves_base.amd64' + benchtype
-#bwaves.data = bwaves.data
+bwaves_dir=bench_dir+'/410.bwaves'
+bwaves.executable =  bwaves_dir+'/run/bwaves_base.amd64' + benchtype
+bwaves.cwd = bwaves_dir+'/run/'
 bwaves.cmd = [bwaves.executable]
 
 #416.gamess
