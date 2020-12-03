@@ -214,7 +214,7 @@ calculix.output = 'beampic.log'
 
 #456.hmmer
 hmmer=Process()
-hmmr_dir = '456.hmmr/'
+hmmr_dir = '456.hmmer/'
 hmmer.executable = bench_dir+hmmr_dir+\
     '/exe/hmmer_base.amd64' + benchtype
 data=bench_dir+hmmr_dir+'/data/ref/input/nph3.hmm'
