@@ -133,9 +133,10 @@ zeusmp.output = 'zeusmp.stdout'
 #435.gromacs
 gromacs = Process()
 gromacs_dir='435.gromacs/'
-gromacs.executable = bench_dir+gromacs_dir+gromacs_dir+\
-    '/exe/gromacs_base.amd64' + benchtype
-data=bench_dir+gromacs_dir+'/data/ref/input/gromacs.tpr'
+gromacs.executable = bench_dir+gromacs_dir+\
+    '/run/gromacs_base.amd64' + benchtype
+data=os.getcwd()+'/gromacs.tpr'
+gromacs.cwd = bench_dir+gromacs_dir+'/run'
 gromacs.cmd = [gromacs.executable] + ['-silent','-deffnm',data,'-nice','0']
 
 #436.cactusADM
