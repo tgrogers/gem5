@@ -1100,7 +1100,7 @@
                 "wait_for_remote_gdb": false, 
                 "cacheStorePorts": 200, 
                 "simpoint_start_insts": [], 
-                "max_insts_any_thread": 500000, 
+                "max_insts_any_thread": 1000000, 
                 "smtROBThreshold": 100, 
                 "numIQEntries": 64, 
                 "branchPred": {
