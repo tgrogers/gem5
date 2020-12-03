@@ -97,10 +97,10 @@ bwaves.cmd = [bwaves.executable]
 gamess=Process()
 gamess_dir='416.gamess/'
 gamess.executable =  bench_dir+gamess_dir+\
-    '/exe/gamess_base.amd64' + benchtype
-gamess.cmd = [gamess.executable]
-gamess.input='exam29.config'
-gamess.output='exam29.output'
+    '/run/gamess_base.amd64' + benchtype
+gamess.cmd = [gamess.executable] + ['cytosine.2.config']
+gamess.cwd = bench_dir+gamess_dir+'/run'
+gamess.output='cytosine.2.output'
 
 #429.mcf
 mcf = Process()
