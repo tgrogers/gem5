@@ -125,8 +125,9 @@ milc.output='su3imp.out'
 zeusmp=Process()
 zeusmp_dir='434.zeusmp/'
 zeusmp.executable = bench_dir+zeusmp_dir+\
-    '/exe/zeusmp_base.amd64' + benchtype
+    '/run/zeusmp_base.amd64' + benchtype
 zeusmp.cmd = [zeusmp.executable]
+zeusmp.cwd = zeusmp_dir+'/run'
 zeusmp.output = 'zeusmp.stdout'
 
 #435.gromacs
@@ -250,9 +251,10 @@ libquantum.output = 'ref.out'
 h264ref=Process()
 h264_dir = '464.h264ref/'
 h264ref.executable = bench_dir+h264_dir+\
-    '/exe/h264_base.amd64' + benchtype
+    '/run/h264ref_base.amd64' + benchtype
 data=bench_dir+h264_dir+'/data/ref/input/foreman_ref_encoder_baseline.cfg'
 h264ref.cmd = [h264ref.executable]+['-d',data]
+h264ref.cwd = bench_dir+h264_dir+'/run'
 h264ref.output = 'foreman_ref_encoder_baseline.out'
 
 #470.lbm
@@ -276,9 +278,10 @@ omnetpp.output = 'omnetpp.log'
 astar=Process()
 astar_dir='473.astar'
 astar.executable = bench_dir+astar_dir+\
-    '/exe/astar_base.amd64' + benchtype
+    '/run/astar_base.amd64' + benchtype
 data=bench_dir+astar_dir+'/data/ref/input/rivers.cfg'
 astar.cmd = [astar.executable]+[data]
+astar.cwd = bench_dir+astar_dir+'/run'
 astar.output = 'lake.out'
 
 #481.wrf
