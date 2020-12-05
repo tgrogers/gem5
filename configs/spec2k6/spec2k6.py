@@ -60,8 +60,12 @@ else:
 perlbench = Process()
 perlbench_dir = '400.perlbench/'
 perlbench.executable =  bench_dir+perlbench_dir+\
-    '/exe/perlbench_base.amd64' + benchtype
-perlbench.cmd = [perlbench.executable] + ['-I./lib', 'attrs.pl']
+    '/run/perlbench_base.amd64' + benchtype
+
+perlbench.cmd = [perlbench.executable] +\
+    ['-I./lib', 'checkspam.pl', '2500', '5', '25',\
+    '11', '150', '1', '1', '1', '1' ]
+perlbench.cwd = bench_dir+perlbench_dir+'/run/'
 perlbench.output = 'attrs.out'
 
 #401.bzip2
@@ -190,9 +194,10 @@ dealII.output='log'
 soplex=Process()
 soplex_dir = '450.soplex/'
 soplex.executable = bench_dir+soplex_dir+\
-    '/exe/soplex_base.amd64' + benchtype
+    '/run/soplex_base.amd64' + benchtype
 data=bench_dir+soplex_dir+'/data/ref/input/ref.mps'
-soplex.cmd = [soplex.executable]+['-m10000',data]
+soplex.cmd = [soplex.executable]+['-m10000','ref.mps']
+soplex.cwd = bench_dir+soplex_dir+"/run/"
 soplex.output = 'test.out'
 
 #453.povray
@@ -315,14 +320,16 @@ xalancbmk.output = 'ref.out'
 specrand_i=Process()
 specrand_i_dir = '998.specrand/'
 specrand_i.executable = bench_dir+specrand_i_dir+\
-    '/exe/specrand_i_base.amd64' + benchtype
+    '/run/specrand_base.amd64' + benchtype
 specrand_i.cmd = [specrand_i.executable] + ['324342','24239']
+specrand_i.cwd = bench_dir+specrand_i_dir+'/run'
 specrand_i.output = 'rand.24239.out'
 
 #999.specrand
 specrand_f=Process()
 specrand_f_dir = '999.specrand/'
 specrand_f.executable = bench_dir+specrand_f_dir+\
-    '/exe/specrand_f_base.amd64' + benchtype
+    '/run/specrand_base.amd64' + benchtype
 specrand_f.cmd = [specrand_f.executable] + ['324342','24239']
+specrand_f.cwd = bench_dir+specrand_f_dir+'/run'
 specrand_f.output = 'rand.24239.out'
