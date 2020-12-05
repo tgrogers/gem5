@@ -309,7 +309,7 @@ class TAGE_SC_L_LoopPredictor(LoopPredictor):
     cxx_class  = 'TAGE_SC_L_LoopPredictor'
     cxx_header = "cpu/pred/tage_sc_l.hh"
     loopTableAgeBits = 4
-    loopTableConfidenceBits = 4
+    loopTableConfidenceBits = 3
     loopTableTagBits = 10
     loopTableIterBits = 10
     useSpeculation = False
