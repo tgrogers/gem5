@@ -132,7 +132,7 @@ zeusmp_dir='434.zeusmp/'
 zeusmp.executable = bench_dir+zeusmp_dir+\
     '/run/zeusmp_base.amd64' + benchtype
 zeusmp.cmd = [zeusmp.executable]
-zeusmp.cwd = zeusmp_dir+'/run'
+zeusmp.cwd = bench_dir+zeusmp_dir+'/run'
 zeusmp.output = 'zeusmp.stdout'
 
 #435.gromacs
