@@ -112,7 +112,8 @@ mcf_dir = '429.mcf/'
 mcf.executable = bench_dir+mcf_dir+\
     '/exe/mcf_base.amd64' + benchtype
 data=bench_dir+mcf_dir+'/data/ref/input/inp.in'
-mcf.cmd = [mcf.executable] + [data]
+mcf.cmd = [mcf.executable] + ['inp.in']
+mcf.cwd = bench_dir+mcf_dir+'/run/'
 mcf.output = 'inp.out'
 
 #433.milc
@@ -147,9 +148,10 @@ gromacs.cmd = [gromacs.executable] + ['-silent','-deffnm',data,'-nice','0']
 cactusADM = Process()
 cactusADM_dir = '436.cactusADM/'
 cactusADM.executable =  bench_dir+cactusADM_dir+\
-    '/exe/cactusADM_base.amd64' + benchtype
+    '/run/cactusADM_base.amd64' + benchtype
 data=bench_dir+cactusADM_dir+'/data/ref/input/benchADM.par'
-cactusADM.cmd = [cactusADM.executable] + [data]
+cactusADM.cmd = [cactusADM.executable] + ['benchADM.par']
+cactusADM.cwd = bench_dir+cactusADM_dir + '/run'
 cactusADM.output = 'benchADM.out'
 
 #437.leslie3d
@@ -263,6 +265,16 @@ h264ref.cmd = [h264ref.executable]+['-d',data]
 h264ref.cwd = bench_dir+h264_dir+'/run'
 h264ref.output = 'foreman_ref_encoder_baseline.out'
 
+#465.tonto
+tonto=Process()
+tonto_dir = '465.tonto/'
+tonto.executable = bench_dir+tonto_dir+\
+    '/run/tonto_base.amd64' + benchtype
+data=bench_dir+tonto_dir+'/data/ref/input/foreman_ref_encoder_baseline.cfg'
+tonto.cmd = [tonto.executable]
+tonto.cwd = bench_dir+tonto_dir+'/run'
+tonto.output = 'tonto.out'
+
 #470.lbm
 lbm=Process()
 lbm_dir='470.lbm/'
@@ -311,9 +323,10 @@ sphinx3.output = 'an4.out'
 xalancbmk=Process()
 xalanch_dir = '483.xalancbmk/'
 xalancbmk.executable =  bench_dir+xalanch_dir+\
-    '/exe/Xalan_base.amd64' + benchtype
+    '/run/Xalan_base.amd64' + benchtype
 data = bench_dir + xalanch_dir + '/data/ref/input/'
-xalancbmk.cmd = [xalancbmk.executable]+['-v',data+'t5.xml',data+'xalanc.xsl']
+xalancbmk.cmd = [xalancbmk.executable]+['-v','t5.xml','xalanc.xsl']
+xalancbmk.cwd = bench_dir+xalanch_dir+'/run'
 xalancbmk.output = 'ref.out'
 
 #998.specrand
